@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Shield, Eye, EyeOff } from 'lucide-react';
+import { Shield, Eye, EyeOff, Settings } from 'lucide-react';
+import { verifyAdminCredentials, getAdminEmail } from '@/lib/admin';
+import PasswordChangeModal from '@/components/PasswordChangeModal';
 
 export default function SimpleAuth({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -14,6 +16,7 @@ export default function SimpleAuth({ children }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -28,8 +31,8 @@ export default function SimpleAuth({ children }) {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simple hardcoded credentials for demo
-    if (email === 'admin@smartstake.com' && password === 'SmartStake2025!') {
+    // Verify admin credentials using secure system
+    if (verifyAdminCredentials(email, password)) {
       localStorage.setItem('smartstake_auth', 'authenticated');
       setIsAuthenticated(true);
       toast.success('Welcome to SmartStake Dashboard!', {
@@ -76,7 +79,7 @@ export default function SimpleAuth({ children }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@smartstake.com"
+                  placeholder="Enter admin email"
                   required
                   className="w-full"
                 />
@@ -115,13 +118,7 @@ export default function SimpleAuth({ children }) {
               </Button>
             </form>
 
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-              <p className="text-xs text-blue-700">
-                <strong>Email:</strong> admin@smartstake.com<br />
-                <strong>Password:</strong> SmartStake2025!
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </div>
@@ -137,18 +134,35 @@ export default function SimpleAuth({ children }) {
             <div className="text-sm text-gray-600">
               Welcome, Admin
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="text-red-600 hover:text-red-700"
-            >
-              Sign Out
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPasswordModal(true)}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <Settings className="w-4 h-4 mr-1" />
+                Change Password
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="text-red-600 hover:text-red-700"
+              >
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </div>
       {children}
+      
+      {/* Password Change Modal */}
+      <PasswordChangeModal 
+        isOpen={showPasswordModal} 
+        onClose={() => setShowPasswordModal(false)} 
+      />
     </div>
   );
 }
