@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import LeadCaptureForm from '@/components/LeadCaptureForm';
+import CasinoLuckyPicker from '@/components/CasinoLuckyPicker';
 import { toast } from 'sonner';
 import { 
   Star, 
@@ -29,6 +30,7 @@ import {
   Dice6,
   Crown
 } from 'lucide-react';
+import Navigation from '@/components/Navigation';
 
 export default function CasinoPage() {
   const [showForm, setShowForm] = useState(false);
@@ -57,6 +59,25 @@ export default function CasinoPage() {
             event_label: 'casino_page',
             value: leadData.bonusAmount
           });
+        }
+
+        // Trigger casino welcome email sequence
+        try {
+          await fetch('/api/email/welcome-sequence', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: leadData.email,
+              firstName: leadData.firstName,
+              bonusAmount: leadData.bonusAmount,
+              luckyNumber: leadData.luckyNumber,
+              userType: 'casino'
+            }),
+          });
+        } catch (error) {
+          console.error('Failed to trigger casino welcome sequence:', error);
         }
       } else if (response.status === 409) {
         toast.error('Email Already Registered', {
@@ -123,28 +144,7 @@ export default function CasinoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
-      <header className="relative z-10">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-black font-bold text-xl">S</span>
-              </div>
-              <span className="text-white text-2xl font-bold">SmartStake Casino</span>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="/" className="text-white/80 hover:text-white transition-colors font-medium">Home</a>
-              <a href="/sports" className="text-white/80 hover:text-white transition-colors font-medium">Sports</a>
-              <Button 
-                onClick={() => setShowForm(true)}
-                className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-bold px-6 py-2"
-              >
-                Play Now
-              </Button>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Navigation currentPage="casino" />
 
       {/* Hero Section */}
       <main className="relative">
@@ -469,8 +469,8 @@ export default function CasinoPage() {
       {/* Lead Capture Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-8">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] shadow-2xl overflow-hidden">
+            <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-900">Join SmartStake Casino</h2>
                 <button 
@@ -482,7 +482,9 @@ export default function CasinoPage() {
                   </svg>
                 </button>
               </div>
-              <LeadCaptureForm onSubmit={handleLeadSubmit} />
+              <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                <LeadCaptureForm onSubmit={handleLeadSubmit} LuckyPickerComponent={CasinoLuckyPicker} />
+              </div>
             </div>
           </div>
         </div>

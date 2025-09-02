@@ -43,7 +43,7 @@ const gameOptions = [
   'Live Casino', 'Baccarat', 'Craps', 'Bingo', 'Lottery'
 ];
 
-export default function LeadCaptureForm({ onSubmit }) {
+export default function LeadCaptureForm({ onSubmit, LuckyPickerComponent = LuckyNumberPicker }) {
   const [step, setStep] = useState(1);
   const [luckyNumber, setLuckyNumber] = useState(null);
   const [bonusAmount, setBonusAmount] = useState(0);
@@ -91,10 +91,20 @@ export default function LeadCaptureForm({ onSubmit }) {
         source: 'organic',
         utmSource: new URLSearchParams(window.location.search).get('utm_source') || 'direct',
         utmMedium: new URLSearchParams(window.location.search).get('utm_medium') || 'organic',
-        utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || 'default'
+        utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') || 'default',
+        registrationDate: new Date().toISOString()
       };
       
+      // Store user data in localStorage for account page
+      localStorage.setItem('smartstake_user', JSON.stringify(leadData));
+      
       await onSubmit(leadData);
+      
+      // Redirect to account page after successful registration
+      setTimeout(() => {
+        window.location.href = '/account';
+      }, 2000);
+      
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {
@@ -131,7 +141,26 @@ export default function LeadCaptureForm({ onSubmit }) {
   if (step === 1) {
     return (
       <div className="w-full max-w-2xl mx-auto">
-        <LuckyNumberPicker onNumberPicked={handleNumberPicked} />
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                1
+              </div>
+              <span className="ml-2 text-sm font-medium text-purple-600">Lucky Number</span>
+            </div>
+            <div className="w-8 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-bold">
+                2
+              </div>
+              <span className="ml-2 text-sm text-gray-600">Registration</span>
+            </div>
+          </div>
+        </div>
+        
+        <LuckyPickerComponent onNumberPicked={handleNumberPicked} />
       </div>
     );
   }
@@ -156,6 +185,37 @@ export default function LeadCaptureForm({ onSubmit }) {
         </div>
 
         <CardContent className="p-8">
+          {/* Step Indicator */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  ✓
+                </div>
+                <span className="ml-2 text-sm text-gray-600">Lucky Number</span>
+              </div>
+              <div className="w-8 h-0.5 bg-gray-300"></div>
+              <div className="flex items-center">
+                <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                  2
+                </div>
+                <span className="ml-2 text-sm font-medium text-purple-600">Registration</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Back Button */}
+          <div className="mb-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep(1)}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              ← Back to Lucky Number
+            </Button>
+          </div>
+
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
             {/* Personal Information */}
             <div className="space-y-4">
