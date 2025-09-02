@@ -31,9 +31,19 @@ export async function POST(request) {
       );
     }
 
-    // For now, skip the duplicate check to avoid the Neon query issue
-    // We'll add this back once the basic functionality is working
-    // const existingLead = await db.select().from(leads).where(eq(leads.email, email)).limit(1);
+    // Check if lead already exists
+    try {
+      const existingLead = await db.select().from(leads).where(eq(leads.email, email)).limit(1);
+      
+      if (existingLead.length > 0) {
+        return NextResponse.json(
+          { error: 'Email already registered' },
+          { status: 409 }
+        );
+      }
+    } catch (error) {
+      console.log('Duplicate check failed, continuing with insert:', error);
+    }
 
     // Calculate lead score
     const leadScore = generateLeadScore({
@@ -53,24 +63,35 @@ export async function POST(request) {
     }
 
     // Insert lead
-    const [newLead] = await db.insert(leads).values({
-      email,
-      firstName,
-      lastName,
-      phone,
-      age,
-      country,
-      preferredGames: preferredGames || [],
-      riskLevel,
-      leadScore,
-      source: source || 'organic',
-      utmSource,
-      utmMedium,
-      utmCampaign,
-      isVerified: false,
-      isDeposited: false,
-      totalDeposits: '0'
-    }).returning();
+    let newLead;
+    try {
+      [newLead] = await db.insert(leads).values({
+        email,
+        firstName,
+        lastName,
+        phone,
+        age,
+        country,
+        preferredGames: preferredGames || [],
+        riskLevel,
+        leadScore,
+        source: source || 'organic',
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        isVerified: false,
+        isDeposited: false,
+        totalDeposits: '0'
+      }).returning();
+    } catch (error) {
+      if (error.code === '23505') { // Duplicate key error
+        return NextResponse.json(
+          { error: 'Email already registered' },
+          { status: 409 }
+        );
+      }
+      throw error; // Re-throw other errors
+    }
 
     // Record gamification activity (simplified for now)
     if (luckyNumber && bonusAmount && newLead.id) {

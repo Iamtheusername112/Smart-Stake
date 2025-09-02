@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import SimpleAuth from '@/components/SimpleAuth';
 import { 
   Users, 
   DollarSign, 
@@ -58,28 +59,29 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">SmartStake Dashboard</h1>
-              <p className="text-gray-600 mt-1">Track your leads and optimize conversions</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" onClick={fetchAnalytics}>
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Export Data
-              </Button>
+    <SimpleAuth>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">SmartStake Dashboard</h1>
+                <p className="text-gray-600 mt-1">Track your leads and optimize conversions</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <Button variant="outline" onClick={fetchAnalytics}>
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+                <Button className="bg-gradient-to-r from-purple-600 to-blue-600">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Export Data
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       <main className="container mx-auto px-4 py-8">
         {/* Key Metrics */}
@@ -263,6 +265,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
-    </div>
+      </div>
+    </SimpleAuth>
   );
 }

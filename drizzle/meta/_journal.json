@@ -8,6 +8,13 @@
       "when": 1756840527483,
       "tag": "0000_fantastic_overlord",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1756845050061,
+      "tag": "0001_motionless_gunslinger",
+      "breakpoints": true
     }
   ]
 }

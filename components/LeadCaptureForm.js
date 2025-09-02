@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import LuckyNumberPicker from './LuckyNumberPicker';
+import { toast } from 'sonner';
 import { Mail, Phone, User, MapPin, Gift } from 'lucide-react';
 
 const leadSchema = z.object({
@@ -62,6 +63,10 @@ export default function LeadCaptureForm({ onSubmit }) {
     setLuckyNumber(number);
     setBonusAmount(bonus);
     setStep(2);
+    toast.success('Lucky Number Selected! 🎯', {
+      description: `You picked ${number} and won $${bonus} bonus!`,
+      duration: 3000,
+    });
   };
 
   const onFormSubmit = async (data) => {

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import LeadCaptureForm from '@/components/LeadCaptureForm';
+import { toast } from 'sonner';
 import { 
   Star, 
   Shield, 
@@ -33,6 +34,10 @@ export default function Home() {
 
       if (response.ok) {
         setIsSubmitted(true);
+        toast.success('Welcome to SmartStake! 🎉', {
+          description: `Your ${leadData.bonusAmount} bonus is ready! Check your email for details.`,
+          duration: 5000,
+        });
         // Track conversion event
         if (typeof window !== 'undefined' && window.gtag) {
           window.gtag('event', 'lead_captured', {
@@ -41,9 +46,25 @@ export default function Home() {
             value: leadData.bonusAmount
           });
         }
+      } else if (response.status === 409) {
+        // Handle duplicate email
+        toast.error('Email Already Registered', {
+          description: 'This email is already registered. Please use a different email address.',
+          duration: 4000,
+        });
+      } else {
+        const errorData = await response.json();
+        toast.error('Submission Failed', {
+          description: errorData.error || 'Something went wrong. Please try again.',
+          duration: 4000,
+        });
       }
     } catch (error) {
       console.error('Error submitting lead:', error);
+      toast.error('Network Error', {
+        description: 'Please check your connection and try again.',
+        duration: 4000,
+      });
     }
   };
 
